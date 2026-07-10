@@ -1,0 +1,6 @@
+discord.py==2.7.1
+pyarr==6.6.0
+pydantic==2.13.4
+pydantic-settings==2.14.2
+seerr==0.2.0
+urllib3==2.7.0

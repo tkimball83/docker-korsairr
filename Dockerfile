@@ -1,0 +1,43 @@
+FROM python:3.13-slim
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY korsairr.py .
+COPY swabbers/ swabbers/
+
+RUN useradd --create-home --shell /usr/sbin/nologin korsairr
+USER korsairr
+
+ENV KORSAIRR_DISCORD_DELETE_PINNED=false \
+    KORSAIRR_DISCORD_RETENTION_DAYS=7 \
+    KORSAIRR_ENABLE_DISCORD=false \
+    KORSAIRR_ENABLE_FILESYSTEM=false \
+    KORSAIRR_ENABLE_RADARR=false \
+    KORSAIRR_ENABLE_SEERR=false \
+    KORSAIRR_ENABLE_SONARR=false \
+    KORSAIRR_FILESYSTEM_DEPTH=1 \
+    KORSAIRR_FILESYSTEM_PATH=/swab \
+    KORSAIRR_FILESYSTEM_RETENTION_DAYS=1 \
+    KORSAIRR_INTERVAL=3600 \
+    KORSAIRR_LOG_LEVEL=info \
+    KORSAIRR_RADARR_CONFIG=/config/radarr.xml \
+    KORSAIRR_RADARR_EXPIRY_DAYS=360 \
+    KORSAIRR_RADARR_RETENTION_DAYS=180 \
+    KORSAIRR_RADARR_URL=http://radarr:7878 \
+    KORSAIRR_SEERR_CONFIG=/config/seerr.json \
+    KORSAIRR_SEERR_URL=http://seerr:5055 \
+    KORSAIRR_SONARR_CONFIG=/config/sonarr.xml \
+    KORSAIRR_SONARR_GRACE_DAYS=7 \
+    KORSAIRR_SONARR_GRACE_EPISODES=8 \
+    KORSAIRR_SONARR_RETENTION_DAYS=180 \
+    KORSAIRR_SONARR_URL=http://sonarr:8989 \
+    KORSAIRR_TIMEOUT=30
+
+ENTRYPOINT ["python", "korsairr.py"]
