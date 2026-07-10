@@ -41,9 +41,14 @@ class SwabClient(discord.Client):
         self.swab_task = asyncio.create_task(self.swab_and_close())
 
     async def swab_and_close(self) -> None:
-        await self.wait_until_ready()
-        log.info("🤖 Logged in as %s", self.user)
         try:
+            try:
+                await asyncio.wait_for(self.wait_until_ready(), timeout=300)
+            except TimeoutError:
+                log.info("❌ Timed out waiting for the gateway")
+                return
+
+            log.info("🤖 Logged in as %s", self.user)
             await self.swab_guild()
         except discord.DiscordException as exc:
             log.info("❌ Swab pass failed: %s", exc)
