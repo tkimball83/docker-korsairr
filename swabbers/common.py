@@ -9,7 +9,7 @@ from pyarr.exceptions import (
     PyarrRecordNotFound,
     PyarrResourceNotFound,
 )
-from pydantic import PositiveFloat, PositiveInt, ValidationError
+from pydantic import HttpUrl, PositiveFloat, PositiveInt, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 NON_SYSTEMIC = (
@@ -28,6 +28,16 @@ class Settings(BaseSettings):
     enable_sonarr: bool = False
     interval: PositiveInt = 3600
     timeout: PositiveFloat = 30
+
+
+def check_url(value: HttpUrl) -> HttpUrl:
+    if value.query or value.fragment:
+        raise ValueError("must not contain a query or fragment")
+
+    if "api" in (value.path or "").lower().split("/"):
+        raise ValueError("must be the base URL without an /api path")
+
+    return value
 
 
 def format_duration(seconds: int) -> str:
@@ -114,9 +124,6 @@ def swab_pyarr(
     korsairr: Settings,
     swab_once: Callable,
 ) -> None:
-    logging.getLogger("httpcore").setLevel(logging.WARNING)
-    logging.getLogger("httpx").setLevel(logging.WARNING)
-
     url = str(settings.url).rstrip("/")
     api_key = load_xml_api_key(log, settings.config)
 

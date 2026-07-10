@@ -7,6 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from swabbers import common
 from swabbers.common import (
+    check_url,
     format_error,
     is_systemic,
     parse_date,
@@ -27,16 +28,7 @@ class Settings(BaseSettings):
     retention_days: PositiveInt = 180
     url: HttpUrl = HttpUrl("http://radarr:7878")
 
-    @field_validator("url")
-    @classmethod
-    def check_url(cls, value: HttpUrl) -> HttpUrl:
-        if value.query or value.fragment:
-            raise ValueError("must not contain a query or fragment")
-
-        if "api" in (value.path or "").lower().split("/"):
-            raise ValueError("must be the base URL without an /api path")
-
-        return value
+    validate_url = field_validator("url")(check_url)
 
 
 def try_delete_movie(
@@ -139,6 +131,9 @@ def swab_once(radarr: Radarr, settings: Settings) -> None:
 
 
 def banner(settings: Settings) -> None:
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
     log.info("🚀 Swabbing radarr")
     log.info("   config=%s", settings.config)
     log.info("   expiry=%dd", settings.expiry_days)

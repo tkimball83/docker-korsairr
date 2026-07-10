@@ -10,6 +10,7 @@ import seerr
 from seerr.exceptions import ApiException
 
 from swabbers import common
+from swabbers.common import check_url
 
 log = logging.getLogger("seerr")
 
@@ -22,16 +23,7 @@ class Settings(BaseSettings):
     config: str = Field("/config/seerr.json", min_length=1)
     url: HttpUrl = HttpUrl("http://seerr:5055")
 
-    @field_validator("url")
-    @classmethod
-    def check_url(cls, value: HttpUrl) -> HttpUrl:
-        if value.query or value.fragment:
-            raise ValueError("must not contain a query or fragment")
-
-        if "api" in (value.path or "").lower().split("/"):
-            raise ValueError("must be the base URL without an /api path")
-
-        return value
+    validate_url = field_validator("url")(check_url)
 
 
 def base_exception(exc: BaseException) -> BaseException:
