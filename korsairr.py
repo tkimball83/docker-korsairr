@@ -66,7 +66,11 @@ def main() -> int:
 
     while True:
         for _, module, swabber_settings in crew:
-            module.swab(swabber_settings, settings)
+            try:
+                module.swab(swabber_settings, settings)
+            except Exception:
+                module.log.info("❌ Swab pass failed", exc_info=True)
+
             sys.stdout.write("\n")
 
         log.info(
