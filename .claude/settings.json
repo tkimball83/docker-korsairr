@@ -1,6 +1,9 @@
 {
   "model": "fable",
   "effortLevel": "high",
+  "attribution": {
+    "commit": ""
+  },
   "enabledPlugins": {
     "codex@openai-codex": true
   },
