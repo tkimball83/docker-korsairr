@@ -63,7 +63,7 @@ def iter_candidates(root: Path, depth: int) -> Iterator[Path]:
             try:
                 yield from iter_candidates(entry, depth - 1)
             except OSError as exc:
-                log.warning("🚫 Failed to list %s: %s", entry, format_error(exc))
+                log.info("🚫 Failed to list %s: %s", entry, format_error(exc))
         else:
             yield entry
 
@@ -75,7 +75,7 @@ def try_delete(entry: Path) -> bool:
         else:
             entry.unlink()
     except OSError as exc:
-        log.warning("🚫 Failed to delete %s: %s", entry, format_error(exc))
+        log.info("🚫 Failed to delete %s: %s", entry, format_error(exc))
         return False
 
     return True
@@ -92,13 +92,13 @@ def swab_empty_dirs(root: Path, depth: int, cutoff: datetime) -> int:
             try:
                 removed += swab_empty_dirs(entry, depth - 1, cutoff)
             except OSError as exc:
-                log.warning("🚫 Failed to list %s: %s", entry, format_error(exc))
+                log.info("🚫 Failed to list %s: %s", entry, format_error(exc))
                 continue
 
         try:
             modified = datetime.fromtimestamp(entry.lstat().st_mtime, tz=timezone.utc)
         except OSError as exc:
-            log.warning("🚫 Failed to stat %s: %s", entry, format_error(exc))
+            log.info("🚫 Failed to stat %s: %s", entry, format_error(exc))
             continue
 
         if modified >= cutoff:
@@ -119,13 +119,13 @@ def swab_once(settings: Settings) -> None:
     root = Path(settings.path)
 
     if not is_real_dir(root):
-        log.error("❌ Not a directory: %s", root)
+        log.info("❌ Not a directory: %s", root)
         return
 
     resolved = root.resolve()
 
     if resolved == Path(resolved.anchor):
-        log.error("❌ Refusing to swab the filesystem root: %s", root)
+        log.info("❌ Refusing to swab the filesystem root: %s", root)
         return
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=settings.retention_days)
@@ -136,7 +136,7 @@ def swab_once(settings: Settings) -> None:
     try:
         candidates = list(iter_candidates(root, settings.depth))
     except OSError as exc:
-        log.error("❌ Failed to list %s: %s", root, format_error(exc))
+        log.info("❌ Failed to list %s: %s", root, format_error(exc))
         return
 
     for entry in candidates:
@@ -144,7 +144,7 @@ def swab_once(settings: Settings) -> None:
             modified = newest_mtime(entry)
         except OSError as exc:
             failed += 1
-            log.warning("🚫 Failed to stat %s: %s", entry, format_error(exc))
+            log.info("🚫 Failed to stat %s: %s", entry, format_error(exc))
             continue
 
         if modified >= cutoff:
@@ -174,7 +174,7 @@ def swab_once(settings: Settings) -> None:
         )
 
     if failed:
-        log.warning("⚠️ %d entr(y/ies) failed to delete", failed)
+        log.info("⚠️ %d entr(y/ies) failed to delete", failed)
 
     if not (files or directories or empty or failed):
         log.info("🤷 No entries matched the swab policy")
@@ -190,4 +190,4 @@ def swab(settings: Settings, korsairr: common.Settings) -> None:
     try:
         swab_once(settings)
     except Exception:
-        log.exception("❌ Swab pass failed")
+        log.info("❌ Swab pass failed", exc_info=True)

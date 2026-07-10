@@ -71,7 +71,7 @@ def load_settings(cls, prefix: str, log: logging.Logger):
             name = "_".join(
                 str(part) for part in error["loc"] if not isinstance(part, int)
             ).upper()
-            log.error("❌ Invalid %s%s: %s", prefix, name, error["msg"])
+            log.info("❌ Invalid %s%s: %s", prefix, name, error["msg"])
         return None
 
 
@@ -79,14 +79,14 @@ def load_xml_api_key(log: logging.Logger, config_path: str) -> str | None:
     try:
         tree = ElementTree.parse(config_path)
     except (OSError, ElementTree.ParseError) as exc:
-        log.error("❌ Failed to read config %s: %s", config_path, exc)
+        log.info("❌ Failed to read config %s: %s", config_path, exc)
         return None
 
     element = tree.getroot().find("ApiKey")
     api_key = (element.text or "").strip() if element is not None else ""
 
     if not api_key:
-        log.error("❌ No Config/ApiKey found in %s", config_path)
+        log.info("❌ No Config/ApiKey found in %s", config_path)
         return None
 
     return api_key
@@ -121,7 +121,7 @@ def swab_pyarr(
     api_key = load_xml_api_key(log, settings.config)
 
     if not api_key:
-        log.error("❌ Unable to determine API key")
+        log.info("❌ Unable to determine API key")
         return
 
     try:
@@ -133,11 +133,11 @@ def swab_pyarr(
         ) as client:
             swab_once(client, settings)
     except PyarrConnectionError as exc:
-        log.error("❌ Cannot reach %s: %s", url, format_error(exc))
+        log.info("❌ Cannot reach %s: %s", url, format_error(exc))
     except PyarrError as exc:
-        log.error("❌ Swab pass failed: %s", format_error(exc))
+        log.info("❌ Swab pass failed: %s", format_error(exc))
     except Exception:
-        log.exception("❌ Swab pass failed")
+        log.info("❌ Swab pass failed", exc_info=True)
 
 
 def sort_by_title(items: list[dict]) -> list[dict]:
