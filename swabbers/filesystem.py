@@ -183,7 +183,7 @@ def swab_once(settings: Settings) -> None:
 def banner(settings: Settings) -> None:
     log.info("🚀 Swabbing filesystem at %s", settings.path)
     log.info("   depth=%d", settings.depth)
-    log.info("   retention=%dd\n", settings.retention_days)
+    log.info("   retention=%dd", settings.retention_days)
 
 
 def swab(settings: Settings, korsairr: common.Settings) -> None:

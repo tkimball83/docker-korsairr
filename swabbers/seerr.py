@@ -169,7 +169,7 @@ def swab_once(
 
 def banner(settings: Settings) -> None:
     log.info("🚀 Swabbing seerr at %s", str(settings.url).rstrip("/"))
-    log.info("   config=%s\n", settings.config)
+    log.info("   config=%s", settings.config)
 
 
 def swab(settings: Settings, korsairr: common.Settings) -> None:

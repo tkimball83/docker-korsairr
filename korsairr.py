@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import logging
-import os
 import sys
 import time
 
@@ -19,16 +18,11 @@ SWABBERS = (
 
 
 def main() -> int:
-    log_levels = logging.getLevelNamesMapping()
-    log_level = os.environ.get("KORSAIRR_LOG_LEVEL", "info").strip().upper()
     logging.basicConfig(
-        level=log_levels.get(log_level, logging.INFO),
+        level=logging.INFO,
         format="[%(name)s] %(message)s",
+        stream=sys.stdout,
     )
-
-    if log_level not in log_levels:
-        log.error("❌ Invalid KORSAIRR_LOG_LEVEL: %s", log_level)
-        return 1
 
     settings = common.load_settings(common.Settings, "KORSAIRR_", log)
 
@@ -56,18 +50,15 @@ def main() -> int:
         return 1
 
     if not crew:
-        log.error(
-            "❌ No swabbers enabled, set at least one KORSAIRR_ENABLE_<SWABBER>=true"
-        )
-        return 1
+        while True:
+            time.sleep(settings.interval)
 
     log.info(
         "🏴‍☠️ Swabbing %s every %s",
         ", ".join(name for name, _, _ in crew),
         common.format_duration(settings.interval),
     )
-    log.info("   log_level=%s", log_level)
-    log.info("   timeout=%gs\n", settings.timeout)
+    log.info("   timeout=%gs", settings.timeout)
 
     for _, module, swabber_settings in crew:
         module.banner(swabber_settings)
@@ -76,8 +67,10 @@ def main() -> int:
         for _, module, swabber_settings in crew:
             module.swab(swabber_settings, settings)
 
+        sys.stdout.write("\n")
+
         log.info(
-            "⏰ Swabbing again in about %s . . .\n",
+            "⏰ Swabbing again in about %s . . .",
             common.format_duration(settings.interval),
         )
         time.sleep(settings.interval)

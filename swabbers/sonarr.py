@@ -367,7 +367,7 @@ def banner(settings: Settings) -> None:
     log.info("   config=%s", settings.config)
     log.info("   grace_days=%dd", settings.grace_days)
     log.info("   grace_episodes=%d", settings.grace_episodes)
-    log.info("   retention=%dd\n", settings.retention_days)
+    log.info("   retention=%dd", settings.retention_days)
 
 
 def swab(settings: Settings, korsairr: common.Settings) -> None:
