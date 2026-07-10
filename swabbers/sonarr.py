@@ -14,7 +14,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from swabbers import common
 from swabbers.common import (
-    bold,
     check_url,
     format_error,
     is_systemic,
@@ -355,12 +354,12 @@ def banner(settings: Settings) -> None:
     logging.getLogger("httpx").setLevel(logging.WARNING)
 
     log.info(
-        "🚀 config=%s grace_days=%s grace_episodes=%s retention=%s url=%s",
-        bold(settings.config),
-        bold(f"{settings.grace_days}d"),
-        bold(settings.grace_episodes),
-        bold(f"{settings.retention_days}d"),
-        bold(str(settings.url).rstrip("/")),
+        "🚀 config=%s grace_days=%dd grace_episodes=%d retention=%dd url=%s",
+        settings.config,
+        settings.grace_days,
+        settings.grace_episodes,
+        settings.retention_days,
+        str(settings.url).rstrip("/"),
     )
 
 

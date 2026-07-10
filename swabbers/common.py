@@ -30,10 +30,6 @@ class Settings(BaseSettings):
     timeout: PositiveFloat = 30
 
 
-def bold(value) -> str:
-    return f"\033[1m{value}\033[0m"
-
-
 def check_url(value: HttpUrl) -> HttpUrl:
     if value.query or value.fragment:
         raise ValueError("must not contain a query or fragment")

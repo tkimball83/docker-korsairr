@@ -50,16 +50,16 @@ def main() -> int:
 
     if crew:
         log.info(
-            "🏴‍☠️ Swabbing %s (interval=%s timeout=%s)",
+            "🏴‍☠️ Swabbing %s (interval=%s timeout=%gs)",
             ", ".join(name for name, _, _ in crew),
-            common.bold(common.format_duration(settings.interval)),
-            common.bold(f"{settings.timeout:g}s"),
+            common.format_duration(settings.interval),
+            settings.timeout,
         )
     else:
         log.info(
-            "🏴‍☠️ No swabbers enabled (interval=%s timeout=%s)",
-            common.bold(common.format_duration(settings.interval)),
-            common.bold(f"{settings.timeout:g}s"),
+            "🏴‍☠️ No swabbers enabled (interval=%s timeout=%gs)",
+            common.format_duration(settings.interval),
+            settings.timeout,
         )
     sys.stdout.write("\n")
 
@@ -79,12 +79,11 @@ def main() -> int:
             except Exception:
                 module.log.info("❌ Swab pass failed", exc_info=True)
 
-            sys.stdout.write("\n")
-
         log.info(
             "⏰ Swabbing again in about %s . . .",
-            common.bold(common.format_duration(settings.interval)),
+            common.format_duration(settings.interval),
         )
+        sys.stdout.write("\n")
         time.sleep(settings.interval)
 
 

@@ -7,7 +7,7 @@ from pydantic import Field, PositiveInt
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from swabbers import common
-from swabbers.common import bold, format_error
+from swabbers.common import format_error
 
 log = logging.getLogger("discord")
 
@@ -157,10 +157,10 @@ def banner(settings: Settings) -> None:
     logging.getLogger("discord.state").setLevel(logging.WARNING)
 
     log.info(
-        "🚀 delete_pinned=%s guild_id=%s retention=%s",
-        bold(settings.delete_pinned),
-        bold(settings.guild_id),
-        bold(f"{settings.retention_days}d"),
+        "🚀 delete_pinned=%s guild_id=%d retention=%dd",
+        settings.delete_pinned,
+        settings.guild_id,
+        settings.retention_days,
     )
 
 

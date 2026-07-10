@@ -9,7 +9,7 @@ from pydantic import Field, PositiveInt, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from swabbers import common
-from swabbers.common import bold, format_error
+from swabbers.common import format_error
 
 log = logging.getLogger("filesystem")
 
@@ -182,10 +182,10 @@ def swab_once(settings: Settings) -> None:
 
 def banner(settings: Settings) -> None:
     log.info(
-        "🚀 depth=%s path=%s retention=%s",
-        bold(settings.depth),
-        bold(settings.path),
-        bold(f"{settings.retention_days}d"),
+        "🚀 depth=%d path=%s retention=%dd",
+        settings.depth,
+        settings.path,
+        settings.retention_days,
     )
 
 
