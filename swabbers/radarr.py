@@ -7,7 +7,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from swabbers import common
 from swabbers.common import (
-    bold,
     check_url,
     format_error,
     is_systemic,
@@ -136,11 +135,11 @@ def banner(settings: Settings) -> None:
     logging.getLogger("httpx").setLevel(logging.WARNING)
 
     log.info(
-        "🚀 config=%s expiry=%s retention=%s url=%s",
-        bold(settings.config),
-        bold(f"{settings.expiry_days}d"),
-        bold(f"{settings.retention_days}d"),
-        bold(str(settings.url).rstrip("/")),
+        "🚀 config=%s expiry=%dd retention=%dd url=%s",
+        settings.config,
+        settings.expiry_days,
+        settings.retention_days,
+        str(settings.url).rstrip("/"),
     )
 
 
