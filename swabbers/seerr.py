@@ -10,7 +10,7 @@ import seerr
 from seerr.exceptions import ApiException
 
 from swabbers import common
-from swabbers.common import check_url
+from swabbers.common import bold, check_url
 
 log = logging.getLogger("seerr")
 
@@ -198,9 +198,11 @@ def swab_once(
 
 
 def banner(settings: Settings) -> None:
-    log.info("🚀 Swabbing seerr")
-    log.info("   config=%s", settings.config)
-    log.info("   url=%s", str(settings.url).rstrip("/"))
+    log.info(
+        "🚀 config=%s url=%s",
+        bold(settings.config),
+        bold(str(settings.url).rstrip("/")),
+    )
 
 
 def swab(settings: Settings, korsairr: common.Settings) -> None:

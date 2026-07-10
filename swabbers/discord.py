@@ -7,7 +7,7 @@ from pydantic import Field, PositiveInt
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from swabbers import common
-from swabbers.common import format_error
+from swabbers.common import bold, format_error
 
 log = logging.getLogger("discord")
 
@@ -156,10 +156,12 @@ def banner(settings: Settings) -> None:
     logging.getLogger("discord.http").addFilter(rate_limit_filter)
     logging.getLogger("discord.state").setLevel(logging.WARNING)
 
-    log.info("🚀 Swabbing discord")
-    log.info("   delete_pinned=%s", settings.delete_pinned)
-    log.info("   guild_id=%d", settings.guild_id)
-    log.info("   retention=%dd", settings.retention_days)
+    log.info(
+        "🚀 delete_pinned=%s guild_id=%s retention=%s",
+        bold(settings.delete_pinned),
+        bold(settings.guild_id),
+        bold(f"{settings.retention_days}d"),
+    )
 
 
 def swab(settings: Settings, korsairr: common.Settings) -> None:

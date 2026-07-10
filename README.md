@@ -16,7 +16,7 @@ Continuously swab the stack
 | `KORSAIRR_ENABLE_RADARR`     | `false` | Enable the radarr swabber           |
 | `KORSAIRR_ENABLE_SEERR`      | `false` | Enable the seerr swabber            |
 | `KORSAIRR_ENABLE_SONARR`     | `false` | Enable the sonarr swabber           |
-| `KORSAIRR_INTERVAL`          | `3600`  | Interval between swab passes        |
+| `KORSAIRR_INTERVAL`          | `86400` | Interval between swab passes        |
 | `KORSAIRR_TIMEOUT`           | `30`    | Per-request http timeout            |
 
 ### Discord
@@ -70,7 +70,7 @@ docker run -d --restart unless-stopped \
   --mount type=bind,source=/containers/sonarr/config/config.xml,target=/config/sonarr.xml,readonly \
   -e KORSAIRR_ENABLE_RADARR=true \
   -e KORSAIRR_ENABLE_SONARR=true \
-  -e KORSAIRR_INTERVAL=3600 \
+  -e KORSAIRR_INTERVAL=86400 \
   -e KORSAIRR_RADARR_URL=http://radarr:7878 \
   -e KORSAIRR_SONARR_URL=http://sonarr:8989 \
   ghcr.io/tkimball83/korsairr:latest
