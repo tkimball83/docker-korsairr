@@ -21,6 +21,8 @@ Continuously swab the stack
 
 ### Discord
 
+Deletes old messages from every channel and thread in the guild.
+
 | Variable                          | Default | Description                           |
 |-----------------------------------|---------|---------------------------------------|
 | `KORSAIRR_DISCORD_DELETE_PINNED`  | `false` | Also delete pinned messages           |
@@ -30,6 +32,8 @@ Continuously swab the stack
 
 ### Filesystem
 
+Deletes each entry under the swab path once everything inside it is old.
+
 | Variable                             | Default | Description                             |
 |--------------------------------------|---------|-----------------------------------------|
 | `KORSAIRR_FILESYSTEM_DEPTH`          | `1`     | Swab candidates at this directory depth |
@@ -37,6 +41,8 @@ Continuously swab the stack
 | `KORSAIRR_FILESYSTEM_RETENTION_DAYS` | `1`     | Swab entries after this age             |
 
 ### Radarr
+
+Deletes old downloaded movies (with exclusion) and expired missing movies.
 
 | Variable                         | Default              | Description                               |
 |----------------------------------|----------------------|-------------------------------------------|
@@ -47,12 +53,16 @@ Continuously swab the stack
 
 ### Seerr
 
+Deletes every request, then every media entry, then triggers a plex library scan.
+
 | Variable                | Default              | Description                      |
 |-------------------------|----------------------|----------------------------------|
 | `KORSAIRR_SEERR_CONFIG` | `/config/seerr.json` | Path to the mounted seerr config |
 | `KORSAIRR_SEERR_URL`    | `http://seerr:5055`  | Base url of the seerr instance   |
 
 ### Sonarr
+
+Deletes old episode files, unmonitors empty seasons, and deletes ended empty series.
 
 | Variable                         | Default              | Description                                |
 |----------------------------------|----------------------|--------------------------------------------|
@@ -64,8 +74,12 @@ Continuously swab the stack
 
 ## Usage
 
+Attach the container to the same user-defined Docker network as the services
+it swabs so their names resolve.
+
 ```sh
 docker run -d --restart unless-stopped \
+  --network korsairr-bridge \
   --mount type=bind,source=/containers/radarr/config/config.xml,target=/config/radarr.xml,readonly \
   --mount type=bind,source=/containers/sonarr/config/config.xml,target=/config/sonarr.xml,readonly \
   -e KORSAIRR_ENABLE_RADARR=true \
