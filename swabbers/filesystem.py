@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
@@ -70,10 +71,15 @@ def iter_candidates(root: Path, depth: int) -> Iterator[Path]:
 
 def try_delete(entry: Path) -> bool:
     try:
-        if is_real_dir(entry):
-            shutil.rmtree(entry)
-        else:
-            entry.unlink()
+        doomed = tempfile.mkdtemp(dir=entry.parent, prefix=".", suffix=".swab")
+
+        try:
+            entry.rename(Path(doomed) / entry.name)
+        except OSError:
+            os.rmdir(doomed)
+            raise
+
+        shutil.rmtree(doomed)
     except OSError as exc:
         log.info("🚫 Failed to delete %s: %s", entry, format_error(exc))
         return False

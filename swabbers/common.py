@@ -31,6 +31,9 @@ class Settings(BaseSettings):
 
 
 def check_url(value: HttpUrl) -> HttpUrl:
+    if value.username or value.password:
+        raise ValueError("must not contain credentials")
+
     if value.query or value.fragment:
         raise ValueError("must not contain a query or fragment")
 

@@ -6,6 +6,7 @@ networks:
     ipam:
       config:
         - subnet: 192.168.0.0/24
+    name: korsairr-bridge
 
 services:
   korsairr:
