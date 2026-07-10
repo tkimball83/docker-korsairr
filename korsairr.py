@@ -53,11 +53,8 @@ def main() -> int:
         while True:
             time.sleep(settings.interval)
 
-    log.info(
-        "🏴‍☠️ Swabbing %s every %s",
-        ", ".join(name for name, _, _ in crew),
-        common.format_duration(settings.interval),
-    )
+    log.info("🏴‍☠️ Swabbing %s", ", ".join(name for name, _, _ in crew))
+    log.info("   interval=%s", common.format_duration(settings.interval))
     log.info("   timeout=%gs", settings.timeout)
     sys.stdout.write("\n")
 
