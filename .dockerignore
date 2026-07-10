@@ -1,0 +1,13 @@
+__pycache__
+.env
+.git
+.github
+.gitignore
+.pre-commit-config.yaml
+.python-version
+.venv
+*.pyc
+docker-compose.yml
+Makefile
+README.md
+venv

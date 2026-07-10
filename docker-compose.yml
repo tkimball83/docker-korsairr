@@ -1,0 +1,164 @@
+---
+networks:
+  bridge:
+    driver: bridge
+    enable_ipv6: false
+    ipam:
+      config:
+        - subnet: 192.168.0.0/24
+
+services:
+  korsairr:
+    cap_drop:
+      - ALL
+    container_name: korsairr
+    depends_on:
+      radarr:
+        condition: service_healthy
+      seerr:
+        condition: service_healthy
+      sonarr:
+        condition: service_healthy
+    environment:
+      KORSAIRR_DISCORD_DELETE_PINNED: ${KORSAIRR_DISCORD_DELETE_PINNED:-false}
+      KORSAIRR_DISCORD_GUILD_ID: ${KORSAIRR_DISCORD_GUILD_ID:-}
+      KORSAIRR_DISCORD_RETENTION_DAYS: ${KORSAIRR_DISCORD_RETENTION_DAYS:-7}
+      KORSAIRR_DISCORD_TOKEN: ${KORSAIRR_DISCORD_TOKEN:-}
+      KORSAIRR_ENABLE_DISCORD: ${KORSAIRR_ENABLE_DISCORD:-false}
+      KORSAIRR_ENABLE_FILESYSTEM: ${KORSAIRR_ENABLE_FILESYSTEM:-false}
+      KORSAIRR_ENABLE_RADARR: ${KORSAIRR_ENABLE_RADARR:-false}
+      KORSAIRR_ENABLE_SEERR: ${KORSAIRR_ENABLE_SEERR:-false}
+      KORSAIRR_ENABLE_SONARR: ${KORSAIRR_ENABLE_SONARR:-false}
+      KORSAIRR_FILESYSTEM_DEPTH: ${KORSAIRR_FILESYSTEM_DEPTH:-1}
+      KORSAIRR_FILESYSTEM_PATH: ${KORSAIRR_FILESYSTEM_PATH:-/swab}
+      KORSAIRR_FILESYSTEM_RETENTION_DAYS: ${KORSAIRR_FILESYSTEM_RETENTION_DAYS:-1}
+      KORSAIRR_INTERVAL: ${KORSAIRR_INTERVAL:-3600}
+      KORSAIRR_LOG_LEVEL: ${KORSAIRR_LOG_LEVEL:-info}
+      KORSAIRR_RADARR_CONFIG: ${KORSAIRR_RADARR_CONFIG:-/config/radarr.xml}
+      KORSAIRR_RADARR_EXPIRY_DAYS: ${KORSAIRR_RADARR_EXPIRY_DAYS:-360}
+      KORSAIRR_RADARR_RETENTION_DAYS: ${KORSAIRR_RADARR_RETENTION_DAYS:-180}
+      KORSAIRR_RADARR_URL: ${KORSAIRR_RADARR_URL:-http://radarr:7878}
+      KORSAIRR_SEERR_CONFIG: ${KORSAIRR_SEERR_CONFIG:-/config/seerr.json}
+      KORSAIRR_SEERR_URL: ${KORSAIRR_SEERR_URL:-http://seerr:5055}
+      KORSAIRR_SONARR_CONFIG: ${KORSAIRR_SONARR_CONFIG:-/config/sonarr.xml}
+      KORSAIRR_SONARR_GRACE_DAYS: ${KORSAIRR_SONARR_GRACE_DAYS:-7}
+      KORSAIRR_SONARR_GRACE_EPISODES: ${KORSAIRR_SONARR_GRACE_EPISODES:-8}
+      KORSAIRR_SONARR_RETENTION_DAYS: ${KORSAIRR_SONARR_RETENTION_DAYS:-180}
+      KORSAIRR_SONARR_URL: ${KORSAIRR_SONARR_URL:-http://sonarr:8989}
+      KORSAIRR_TIMEOUT: ${KORSAIRR_TIMEOUT:-30}
+    image: ghcr.io/tkimball83/korsairr:latest
+    labels:
+      com.centurylinklabs.watchtower.enable: 'true'
+    networks:
+      - bridge
+    read_only: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    user: ${PUID:-1000}:${PGID:-1000}
+    volumes:
+      - type: bind
+        source: /containers/filesystem/swab
+        target: /swab
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /containers/radarr/config/config.xml
+        target: /config/radarr.xml
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /containers/seerr/config/settings.json
+        target: /config/seerr.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /containers/sonarr/config/config.xml
+        target: /config/sonarr.xml
+        read_only: true
+        bind:
+          create_host_path: false
+
+  radarr:
+    container_name: radarr
+    environment:
+      PGID: ${PGID:-1000}
+      PUID: ${PUID:-1000}
+      TZ: ${TZ:-Etc/UTC}
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:7878/ping']
+      interval: 30s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    image: lscr.io/linuxserver/radarr:latest
+    labels:
+      com.centurylinklabs.watchtower.enable: 'true'
+    networks:
+      - bridge
+    ports:
+      - '7878:7878'
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /containers/radarr/config
+        target: /config
+        bind:
+          create_host_path: false
+
+  seerr:
+    container_name: seerr
+    environment:
+      TZ: ${TZ:-Etc/UTC}
+    healthcheck:
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:5055/api/v1/status']
+      interval: 30s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    image: seerr/seerr:latest
+    init: true
+    labels:
+      com.centurylinklabs.watchtower.enable: 'true'
+    networks:
+      - bridge
+    ports:
+      - '5055:5055'
+    restart: unless-stopped
+    user: ${PUID:-1000}:${PGID:-1000}
+    volumes:
+      - type: bind
+        source: /containers/seerr/config
+        target: /app/config
+        bind:
+          create_host_path: false
+
+  sonarr:
+    container_name: sonarr
+    environment:
+      PGID: ${PGID:-1000}
+      PUID: ${PUID:-1000}
+      TZ: ${TZ:-Etc/UTC}
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8989/ping']
+      interval: 30s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    image: lscr.io/linuxserver/sonarr:latest
+    labels:
+      com.centurylinklabs.watchtower.enable: 'true'
+    networks:
+      - bridge
+    ports:
+      - '8989:8989'
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /containers/sonarr/config
+        target: /config
+        bind:
+          create_host_path: false
+...
