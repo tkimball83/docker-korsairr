@@ -23,7 +23,7 @@ jobs:
           tags: korsairr:smoke
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - run: docker run --rm --entrypoint python korsairr:smoke -m compileall -q .
+      - run: docker run --rm --user root --entrypoint python korsairr:smoke -m compileall -q .
       - run: docker run --rm --entrypoint python korsairr:smoke -c 'import korsairr'
       - run: |
           docker run --detach --name smoke korsairr:smoke
