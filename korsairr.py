@@ -48,7 +48,10 @@ def main() -> int:
     if failed:
         return 1
 
-    log.info("🏴‍☠️ Swabbing %s", ", ".join(name for name, _, _ in crew) or "none")
+    if crew:
+        log.info("🏴‍☠️ Swabbing %s", ", ".join(name for name, _, _ in crew))
+    else:
+        log.info("🏴‍☠️ No swabbers enabled")
     log.info("   interval=%s", common.format_duration(settings.interval))
     log.info("   timeout=%gs", settings.timeout)
     sys.stdout.write("\n")
