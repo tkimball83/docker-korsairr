@@ -1,10 +1,13 @@
 __pycache__
+.claude
+.codex
 .env
 .git
 .github
 .gitignore
 .pre-commit-config.yaml
 .python-version
+.ruff_cache
 .venv
 *.pyc
 docker-compose.yml

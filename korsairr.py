@@ -3,7 +3,7 @@
 import logging
 import os
 import sys
-import threading
+import time
 
 from swabbers import common, discord, filesystem, radarr, seerr, sonarr
 
@@ -16,16 +16,6 @@ SWABBERS = (
     ("seerr", seerr),
     ("sonarr", sonarr),
 )
-
-
-def thread_excepthook(args) -> None:
-    name = args.thread.name if args.thread else "unknown"
-    log.critical(
-        "❌ %s swabber crashed",
-        name,
-        exc_info=(args.exc_type, args.exc_value, args.exc_traceback),
-    )
-    os._exit(1)
 
 
 def main() -> int:
@@ -79,24 +69,18 @@ def main() -> int:
     log.info("   log_level=%s", log_level)
     log.info("   timeout=%gs\n", settings.timeout)
 
-    threading.excepthook = thread_excepthook
+    for _, module, swabber_settings in crew:
+        module.banner(swabber_settings)
 
-    threads = [
-        threading.Thread(
-            target=module.run,
-            args=(swabber_settings, settings),
-            name=name,
+    while True:
+        for _, module, swabber_settings in crew:
+            module.swab(swabber_settings, settings)
+
+        log.info(
+            "⏰ Swabbing again in about %s . . .\n",
+            common.format_duration(settings.interval),
         )
-        for name, module, swabber_settings in crew
-    ]
-
-    for thread in threads:
-        thread.start()
-
-    for thread in threads:
-        thread.join()
-
-    return 0
+        time.sleep(settings.interval)
 
 
 if __name__ == "__main__":

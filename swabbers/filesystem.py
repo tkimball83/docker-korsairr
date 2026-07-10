@@ -1,7 +1,6 @@
 import logging
 import os
 import shutil
-import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
@@ -10,7 +9,7 @@ from pydantic import Field, PositiveInt, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from swabbers import common
-from swabbers.common import format_duration, format_error
+from swabbers.common import format_error
 
 log = logging.getLogger("korsairr.filesystem")
 
@@ -181,19 +180,14 @@ def swab_once(settings: Settings) -> None:
         log.info("🤷 No entries matched the swab policy")
 
 
-def run(settings: Settings, korsairr: common.Settings) -> None:
+def banner(settings: Settings) -> None:
     log.info("🚀 Swabbing filesystem at %s", settings.path)
     log.info("   depth=%d", settings.depth)
     log.info("   retention=%dd\n", settings.retention_days)
 
-    while True:
-        try:
-            swab_once(settings)
-        except Exception:
-            log.exception("❌ Swab pass failed")
 
-        log.info(
-            "⏰ Swabbing again in about %s . . .\n",
-            format_duration(korsairr.interval),
-        )
-        time.sleep(korsairr.interval)
+def swab(settings: Settings, korsairr: common.Settings) -> None:
+    try:
+        swab_once(settings)
+    except Exception:
+        log.exception("❌ Swab pass failed")

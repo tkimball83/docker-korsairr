@@ -1,5 +1,7 @@
 # Makefile
 
+.PHONY: all clean pre-commit python venv
+
 all: venv python pre-commit
 
 clean:

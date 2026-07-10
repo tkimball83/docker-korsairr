@@ -10,8 +10,8 @@ from swabbers.common import (
     format_error,
     is_systemic,
     parse_date,
-    run_pyarr,
     sort_by_title,
+    swab_pyarr,
 )
 
 log = logging.getLogger("korsairr.radarr")
@@ -138,10 +138,12 @@ def swab_once(radarr: Radarr, settings: Settings) -> None:
         log.info("🤷 No movies matched the swab policy")
 
 
-def run(settings: Settings, korsairr: common.Settings) -> None:
+def banner(settings: Settings) -> None:
     log.info("🚀 Swabbing radarr at %s", str(settings.url).rstrip("/"))
     log.info("   config=%s", settings.config)
     log.info("   expiry=%dd", settings.expiry_days)
     log.info("   retention=%dd\n", settings.retention_days)
 
-    run_pyarr(log, Radarr, settings, korsairr, swab_once)
+
+def swab(settings: Settings, korsairr: common.Settings) -> None:
+    swab_pyarr(log, Radarr, settings, korsairr, swab_once)

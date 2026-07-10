@@ -17,8 +17,8 @@ from swabbers.common import (
     format_error,
     is_systemic,
     parse_date,
-    run_pyarr,
     sort_by_title,
+    swab_pyarr,
 )
 
 log = logging.getLogger("korsairr.sonarr")
@@ -172,11 +172,23 @@ def swab_episode_files(
     return deleted, failed, skipped
 
 
+def latest_season(series: dict) -> int:
+    return max(
+        (season.get("seasonNumber") or 0 for season in series.get("seasons") or []),
+        default=0,
+    )
+
+
 def should_unmonitor_season(series: dict, season: dict, settings: Settings) -> bool:
     statistics = season.get("statistics") or {}
 
     return (
         series.get("status") != "upcoming"
+        and not (
+            series.get("status") == "continuing"
+            and bool(season.get("seasonNumber"))
+            and season.get("seasonNumber") == latest_season(series)
+        )
         and bool(season.get("monitored"))
         and int(statistics.get("episodeFileCount") or 0) == 0
         and int(statistics.get("totalEpisodeCount") or 0) >= settings.grace_episodes
@@ -350,11 +362,13 @@ def swab_once(sonarr: Sonarr, settings: Settings) -> None:
         log.info("🤷 No episode files or series matched the swab policy")
 
 
-def run(settings: Settings, korsairr: common.Settings) -> None:
+def banner(settings: Settings) -> None:
     log.info("🚀 Swabbing sonarr at %s", str(settings.url).rstrip("/"))
     log.info("   config=%s", settings.config)
     log.info("   grace_days=%dd", settings.grace_days)
     log.info("   grace_episodes=%d", settings.grace_episodes)
     log.info("   retention=%dd\n", settings.retention_days)
 
-    run_pyarr(log, Sonarr, settings, korsairr, swab_once)
+
+def swab(settings: Settings, korsairr: common.Settings) -> None:
+    swab_pyarr(log, Sonarr, settings, korsairr, swab_once)

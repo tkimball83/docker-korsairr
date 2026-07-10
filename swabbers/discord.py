@@ -7,7 +7,7 @@ from pydantic import Field, PositiveInt
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from swabbers import common
-from swabbers.common import format_duration, format_error
+from swabbers.common import format_error
 
 log = logging.getLogger("korsairr.discord")
 
@@ -31,31 +31,26 @@ def rate_limit_filter(record: logging.LogRecord) -> bool:
 
 
 class SwabClient(discord.Client):
-    def __init__(self, settings: Settings, interval: int):
+    def __init__(self, settings: Settings):
         intents = discord.Intents.none()
         intents.guilds = True
         super().__init__(intents=intents)
-        self.interval = interval
         self.settings = settings
 
     async def setup_hook(self) -> None:
-        self.swab_task = asyncio.create_task(self.swab_forever())
+        self.swab_task = asyncio.create_task(self.swab_and_close())
 
-    async def swab_forever(self) -> None:
+    async def swab_and_close(self) -> None:
         await self.wait_until_ready()
-        log.info("🤖 Logged in as %s\n", self.user)
-        while True:
-            try:
-                await self.swab_guild()
-            except discord.DiscordException as exc:
-                log.error("❌ Swab pass failed: %s", exc)
-            except Exception:
-                log.exception("❌ Swab pass failed")
-            log.info(
-                "⏰ Swabbing again in about %s . . .\n",
-                format_duration(self.interval),
-            )
-            await asyncio.sleep(self.interval)
+        log.info("🤖 Logged in as %s", self.user)
+        try:
+            await self.swab_guild()
+        except discord.DiscordException as exc:
+            log.error("❌ Swab pass failed: %s", exc)
+        except Exception:
+            log.exception("❌ Swab pass failed")
+        finally:
+            await self.close()
 
     async def swab_channel(self, channel, cutoff: datetime) -> int:
         deleted = 0
@@ -159,7 +154,7 @@ class SwabClient(discord.Client):
             log.info("🤷 No messages matched the swab policy")
 
 
-def run(settings: Settings, korsairr: common.Settings) -> None:
+def banner(settings: Settings) -> None:
     logging.getLogger("discord").setLevel(logging.WARNING)
     logging.getLogger("discord.client").setLevel(logging.ERROR)
     logging.getLogger("discord.http").addFilter(rate_limit_filter)
@@ -168,10 +163,11 @@ def run(settings: Settings, korsairr: common.Settings) -> None:
     log.info("   delete_pinned=%s", settings.delete_pinned)
     log.info("   retention=%dd\n", settings.retention_days)
 
-    client = SwabClient(settings, korsairr.interval)
+
+def swab(settings: Settings, korsairr: common.Settings) -> None:
+    client = SwabClient(settings)
 
     try:
         client.run(settings.token, log_handler=None)
     except discord.LoginFailure as exc:
         log.error("❌ Login failed: %s", exc)
-        raise
