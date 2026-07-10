@@ -161,7 +161,7 @@ def banner(settings: Settings) -> None:
 
     log.info("🚀 Swabbing discord guild %s", settings.guild_id)
     log.info("   delete_pinned=%s", settings.delete_pinned)
-    log.info("   retention=%dd\n", settings.retention_days)
+    log.info("   retention=%dd", settings.retention_days)
 
 
 def swab(settings: Settings, korsairr: common.Settings) -> None:

@@ -142,7 +142,7 @@ def banner(settings: Settings) -> None:
     log.info("🚀 Swabbing radarr at %s", str(settings.url).rstrip("/"))
     log.info("   config=%s", settings.config)
     log.info("   expiry=%dd", settings.expiry_days)
-    log.info("   retention=%dd\n", settings.retention_days)
+    log.info("   retention=%dd", settings.retention_days)
 
 
 def swab(settings: Settings, korsairr: common.Settings) -> None:
