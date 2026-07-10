@@ -1,5 +1,4 @@
 import logging
-import time
 import xml.etree.ElementTree as ElementTree
 from datetime import datetime, timezone
 from typing import Callable
@@ -108,7 +107,7 @@ def parse_date(value) -> datetime | None:
     return parsed
 
 
-def run_pyarr(
+def swab_pyarr(
     log: logging.Logger,
     client_cls: type,
     settings,
@@ -119,33 +118,26 @@ def run_pyarr(
     logging.getLogger("httpx").setLevel(logging.WARNING)
 
     url = str(settings.url).rstrip("/")
+    api_key = load_xml_api_key(log, settings.config)
 
-    while True:
-        api_key = load_xml_api_key(log, settings.config)
+    if not api_key:
+        log.error("❌ Unable to determine API key")
+        return
 
-        if not api_key:
-            log.error("❌ Unable to determine API key")
-        else:
-            try:
-                with client_cls(
-                    url,
-                    api_key,
-                    request_timeout=korsairr.timeout,
-                    api_ver="v3",
-                ) as client:
-                    swab_once(client, settings)
-            except PyarrConnectionError as exc:
-                log.error("❌ Cannot reach %s: %s", url, format_error(exc))
-            except PyarrError as exc:
-                log.error("❌ Swab pass failed: %s", format_error(exc))
-            except Exception:
-                log.exception("❌ Swab pass failed")
-
-        log.info(
-            "⏰ Swabbing again in about %s . . .\n",
-            format_duration(korsairr.interval),
-        )
-        time.sleep(korsairr.interval)
+    try:
+        with client_cls(
+            url,
+            api_key,
+            request_timeout=korsairr.timeout,
+            api_ver="v3",
+        ) as client:
+            swab_once(client, settings)
+    except PyarrConnectionError as exc:
+        log.error("❌ Cannot reach %s: %s", url, format_error(exc))
+    except PyarrError as exc:
+        log.error("❌ Swab pass failed: %s", format_error(exc))
+    except Exception:
+        log.exception("❌ Swab pass failed")
 
 
 def sort_by_title(items: list[dict]) -> list[dict]:

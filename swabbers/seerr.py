@@ -1,6 +1,5 @@
 import json
 import logging
-import time
 from collections.abc import Callable
 
 import urllib3
@@ -11,7 +10,6 @@ import seerr
 from seerr.exceptions import ApiException
 
 from swabbers import common
-from swabbers.common import format_duration
 
 log = logging.getLogger("korsairr.seerr")
 
@@ -169,35 +167,30 @@ def swab_once(
             log.info("🤷 No requests or media matched the swab policy")
 
 
-def run(settings: Settings, korsairr: common.Settings) -> None:
-    url = str(settings.url).rstrip("/")
-
-    log.info("🚀 Swabbing seerr at %s", url)
+def banner(settings: Settings) -> None:
+    log.info("🚀 Swabbing seerr at %s", str(settings.url).rstrip("/"))
     log.info("   config=%s\n", settings.config)
 
-    while True:
-        api_key = load_api_key(settings.config)
 
-        if not api_key:
-            log.error("❌ Unable to determine API key")
-        else:
-            configuration = seerr.Configuration(
-                host=f"{url}/api/v1",
-                api_key={"apiKey": api_key},
-                retries=0,
-            )
+def swab(settings: Settings, korsairr: common.Settings) -> None:
+    url = str(settings.url).rstrip("/")
+    api_key = load_api_key(settings.config)
 
-            try:
-                swab_once(configuration, settings, korsairr.timeout)
-            except ApiException as exc:
-                log.error("❌ Swab pass failed: %s", format_api_error(exc))
-            except urllib3.exceptions.HTTPError as exc:
-                log.error("❌ Cannot reach %s: %s", url, base_exception(exc))
-            except Exception:
-                log.exception("❌ Swab pass failed")
+    if not api_key:
+        log.error("❌ Unable to determine API key")
+        return
 
-        log.info(
-            "⏰ Swabbing again in about %s . . .\n",
-            format_duration(korsairr.interval),
-        )
-        time.sleep(korsairr.interval)
+    configuration = seerr.Configuration(
+        host=f"{url}/api/v1",
+        api_key={"apiKey": api_key},
+        retries=0,
+    )
+
+    try:
+        swab_once(configuration, settings, korsairr.timeout)
+    except ApiException as exc:
+        log.error("❌ Swab pass failed: %s", format_api_error(exc))
+    except urllib3.exceptions.HTTPError as exc:
+        log.error("❌ Cannot reach %s: %s", url, base_exception(exc))
+    except Exception:
+        log.exception("❌ Swab pass failed")
