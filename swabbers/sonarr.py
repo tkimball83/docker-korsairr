@@ -162,12 +162,7 @@ def swab_episode_files(
             continue
 
         deleted += 1
-        log.info(
-            "🗑️ Deleted episode file %s for %s (file added %s)",
-            episode_file_id,
-            title,
-            file_added.isoformat(),
-        )
+        log.info("🗑️ Deleted episode file %s for %s", episode_file_id, title)
 
     return deleted, failed, skipped
 

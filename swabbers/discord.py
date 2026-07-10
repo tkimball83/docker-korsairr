@@ -73,13 +73,7 @@ class SwabClient(discord.Client):
                 except discord.NotFound:
                     continue
                 deleted += 1
-                log.info(
-                    "🗑️ Deleted message %d from #%s (author=%s, created=%s)",
-                    message.id,
-                    channel.name,
-                    message.author,
-                    message.created_at.isoformat(),
-                )
+                log.info("🗑️ Deleted message %d from #%s", message.id, channel.name)
         except discord.HTTPException as exc:
             log.info("🚫 Skipping #%s: %s", channel.name, exc)
         finally:

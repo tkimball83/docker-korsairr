@@ -161,7 +161,7 @@ def swab_once(settings: Settings) -> None:
         else:
             files += 1
 
-        log.info("🗑️ Deleted %s (modified %s)", entry, modified.isoformat())
+        log.info("🗑️ Deleted %s", entry)
 
     empty = 0
 
