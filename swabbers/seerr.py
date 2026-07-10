@@ -102,29 +102,67 @@ def swab_items(ids: list[int], delete: Callable[[str], None], label: str) -> int
 
 
 def swab_requests(request_api: seerr.RequestApi, timeout: float) -> int:
-    response = request_api.get_request(
-        take=1024, filter="all", _request_timeout=timeout
-    )
+    deleted = 0
+    previous = None
+    skip = 0
 
-    return swab_items(
-        sorted_ids(response.results),
-        lambda item_id: request_api.delete_request(
-            request_id=item_id, _request_timeout=timeout
-        ),
-        "request",
-    )
+    for _ in range(1000):
+        response = request_api.get_request(
+            take=1024, skip=skip, filter="all", _request_timeout=timeout
+        )
+        results = response.results or []
+        ids = sorted_ids(results)
+
+        if ids == previous:
+            break
+
+        previous = ids
+        page = swab_items(
+            ids,
+            lambda item_id: request_api.delete_request(
+                request_id=item_id, _request_timeout=timeout
+            ),
+            "request",
+        )
+        deleted += page
+        skip += len(results) - page
+
+        if len(results) < 1024:
+            break
+
+    return deleted
 
 
 def swab_media(media_api: seerr.MediaApi, timeout: float) -> int:
-    response = media_api.get_media(take=1024, filter="all", _request_timeout=timeout)
+    deleted = 0
+    previous = None
+    skip = 0
 
-    return swab_items(
-        sorted_ids(response.results),
-        lambda item_id: media_api.delete_media(
-            media_id=item_id, _request_timeout=timeout
-        ),
-        "media",
-    )
+    for _ in range(1000):
+        response = media_api.get_media(
+            take=1024, skip=skip, filter="all", _request_timeout=timeout
+        )
+        results = response.results or []
+        ids = sorted_ids(results)
+
+        if ids == previous:
+            break
+
+        previous = ids
+        page = swab_items(
+            ids,
+            lambda item_id: media_api.delete_media(
+                media_id=item_id, _request_timeout=timeout
+            ),
+            "media",
+        )
+        deleted += page
+        skip += len(results) - page
+
+        if len(results) < 1024:
+            break
+
+    return deleted
 
 
 def library_scan(settings_api: seerr.SettingsApi, timeout: float) -> None:
