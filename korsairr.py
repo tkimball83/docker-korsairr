@@ -34,7 +34,6 @@ def main() -> int:
 
     for name, module in SWABBERS:
         if not getattr(settings, f"enable_{name}"):
-            log.info("💤 %s swabber disabled", name)
             continue
 
         swabber_settings = common.load_settings(
@@ -49,11 +48,7 @@ def main() -> int:
     if failed:
         return 1
 
-    if not crew:
-        while True:
-            time.sleep(settings.interval)
-
-    log.info("🏴‍☠️ Swabbing %s", ", ".join(name for name, _, _ in crew))
+    log.info("🏴‍☠️ Swabbing %s", ", ".join(name for name, _, _ in crew) or "nothing")
     log.info("   interval=%s", common.format_duration(settings.interval))
     log.info("   timeout=%gs", settings.timeout)
     sys.stdout.write("\n")
@@ -61,6 +56,10 @@ def main() -> int:
     for _, module, swabber_settings in crew:
         module.banner(swabber_settings)
         sys.stdout.write("\n")
+
+    if not crew:
+        while True:
+            time.sleep(settings.interval)
 
     while True:
         for _, module, swabber_settings in crew:

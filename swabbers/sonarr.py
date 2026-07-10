@@ -363,11 +363,12 @@ def swab_once(sonarr: Sonarr, settings: Settings) -> None:
 
 
 def banner(settings: Settings) -> None:
-    log.info("🚀 Swabbing sonarr at %s", str(settings.url).rstrip("/"))
+    log.info("🚀 Swabbing sonarr")
     log.info("   config=%s", settings.config)
     log.info("   grace_days=%dd", settings.grace_days)
     log.info("   grace_episodes=%d", settings.grace_episodes)
     log.info("   retention=%dd", settings.retention_days)
+    log.info("   url=%s", str(settings.url).rstrip("/"))
 
 
 def swab(settings: Settings, korsairr: common.Settings) -> None:
