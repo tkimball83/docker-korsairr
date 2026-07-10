@@ -11,7 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from swabbers import common
 from swabbers.common import format_error
 
-log = logging.getLogger("korsairr.filesystem")
+log = logging.getLogger("filesystem")
 
 
 class Settings(BaseSettings):

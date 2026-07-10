@@ -11,7 +11,7 @@ from seerr.exceptions import ApiException
 
 from swabbers import common
 
-log = logging.getLogger("korsairr.seerr")
+log = logging.getLogger("seerr")
 
 
 class Settings(BaseSettings):

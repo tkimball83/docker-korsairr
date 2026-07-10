@@ -21,7 +21,7 @@ from swabbers.common import (
     swab_pyarr,
 )
 
-log = logging.getLogger("korsairr.sonarr")
+log = logging.getLogger("sonarr")
 
 
 class Settings(BaseSettings):

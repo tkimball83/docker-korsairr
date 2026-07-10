@@ -9,7 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from swabbers import common
 from swabbers.common import format_error
 
-log = logging.getLogger("korsairr.discord")
+log = logging.getLogger("discord")
 
 
 class Settings(BaseSettings):
@@ -155,9 +155,11 @@ class SwabClient(discord.Client):
 
 
 def banner(settings: Settings) -> None:
-    logging.getLogger("discord").setLevel(logging.WARNING)
     logging.getLogger("discord.client").setLevel(logging.ERROR)
+    logging.getLogger("discord.gateway").setLevel(logging.WARNING)
+    logging.getLogger("discord.http").setLevel(logging.WARNING)
     logging.getLogger("discord.http").addFilter(rate_limit_filter)
+    logging.getLogger("discord.state").setLevel(logging.WARNING)
 
     log.info("🚀 Swabbing discord guild %s", settings.guild_id)
     log.info("   delete_pinned=%s", settings.delete_pinned)

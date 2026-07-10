@@ -14,7 +14,7 @@ from swabbers.common import (
     swab_pyarr,
 )
 
-log = logging.getLogger("korsairr.radarr")
+log = logging.getLogger("radarr")
 
 
 class Settings(BaseSettings):
