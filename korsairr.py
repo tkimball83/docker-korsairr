@@ -59,9 +59,11 @@ def main() -> int:
         common.format_duration(settings.interval),
     )
     log.info("   timeout=%gs", settings.timeout)
+    sys.stdout.write("\n")
 
     for _, module, swabber_settings in crew:
         module.banner(swabber_settings)
+        sys.stdout.write("\n")
 
     while True:
         for _, module, swabber_settings in crew:
