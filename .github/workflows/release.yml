@@ -10,8 +10,29 @@ permissions:
   packages: write
 
 jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: korsairr:smoke
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - run: docker run --rm --entrypoint python korsairr:smoke -m compileall -q .
+      - run: docker run --rm --entrypoint python korsairr:smoke -c 'import korsairr'
+      - run: |
+          docker run --detach --name smoke korsairr:smoke
+          sleep 5
+          docker logs smoke | grep -q 'No swabbers enabled'
+          docker rm --force smoke
   release:
     name: release
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
