@@ -181,8 +181,9 @@ def swab_once(settings: Settings) -> None:
 
 
 def banner(settings: Settings) -> None:
-    log.info("🚀 Swabbing filesystem at %s", settings.path)
+    log.info("🚀 Swabbing filesystem")
     log.info("   depth=%d", settings.depth)
+    log.info("   path=%s", settings.path)
     log.info("   retention=%dd", settings.retention_days)
 
 

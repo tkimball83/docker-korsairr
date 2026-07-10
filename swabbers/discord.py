@@ -157,8 +157,9 @@ def banner(settings: Settings) -> None:
     logging.getLogger("discord.http").addFilter(rate_limit_filter)
     logging.getLogger("discord.state").setLevel(logging.WARNING)
 
-    log.info("🚀 Swabbing discord guild %s", settings.guild_id)
+    log.info("🚀 Swabbing discord")
     log.info("   delete_pinned=%s", settings.delete_pinned)
+    log.info("   guild_id=%d", settings.guild_id)
     log.info("   retention=%dd", settings.retention_days)
 
 
