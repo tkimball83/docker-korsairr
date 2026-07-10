@@ -113,7 +113,7 @@ def try_delete_episode_file(sonarr: Sonarr, episode_file_id: int, title: str) ->
         if is_systemic(exc):
             raise
 
-        log.warning(
+        log.info(
             "🚫 Failed to delete episode file %s for %s: %s",
             episode_file_id,
             title,
@@ -140,14 +140,14 @@ def swab_episode_files(
 
         if episode_file_id is None:
             skipped += 1
-            log.warning("🚫 Skipping episode file for %s: no id", title)
+            log.info("🚫 Skipping episode file for %s: no id", title)
             continue
 
         file_added = parse_date(episode_file.get("dateAdded"))
 
         if file_added is None:
             skipped += 1
-            log.warning(
+            log.info(
                 "🚫 Skipping episode file %s for %s: no parsable dateAdded",
                 episode_file_id,
                 title,
@@ -226,7 +226,7 @@ def try_unmonitor_season(
         if is_systemic(exc):
             raise
 
-        log.warning(
+        log.info(
             "🚫 Failed to unmonitor %s season %s: %s",
             title,
             season_number,
@@ -259,7 +259,7 @@ def unmonitor_empty_seasons(
 
             if season_number is None:
                 failed += 1
-                log.warning("🚫 Skipping %s season: no season number", title)
+                log.info("🚫 Skipping %s season: no season number", title)
                 continue
 
             if not try_unmonitor_season(
@@ -281,7 +281,7 @@ def try_delete_series(sonarr: Sonarr, series_id: int, title: str) -> bool:
         if is_systemic(exc):
             raise
 
-        log.warning("🚫 Failed to delete %s: %s", title, format_error(exc))
+        log.info("🚫 Failed to delete %s: %s", title, format_error(exc))
         return False
 
     return True
@@ -348,13 +348,13 @@ def swab_once(sonarr: Sonarr, settings: Settings) -> None:
         )
 
     if skipped:
-        log.warning(
+        log.info(
             "⚠️ %d episode file(s) skipped due to missing or unparsable data",
             skipped,
         )
 
     if failed:
-        log.warning("⚠️ %d operation(s) failed", failed)
+        log.info("⚠️ %d operation(s) failed", failed)
 
     if not (
         deleted_files or unmonitored_seasons or deleted_series or failed or skipped

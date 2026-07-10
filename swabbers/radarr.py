@@ -54,7 +54,7 @@ def try_delete_movie(
         if is_systemic(exc):
             raise
 
-        log.warning("🚫 Failed to delete %s: %s", title, format_error(exc))
+        log.info("🚫 Failed to delete %s: %s", title, format_error(exc))
         return False
 
     return True
@@ -85,7 +85,7 @@ def swab_once(radarr: Radarr, settings: Settings) -> None:
 
             if file_added is None:
                 skipped += 1
-                log.warning("🚫 Skipping %s: no parsable movieFile.dateAdded", title)
+                log.info("🚫 Skipping %s: no parsable movieFile.dateAdded", title)
                 continue
 
             if file_added >= retention_cutoff:
@@ -104,7 +104,7 @@ def swab_once(radarr: Radarr, settings: Settings) -> None:
 
             if added is None:
                 skipped += 1
-                log.warning("🚫 Skipping %s: no parsable added date", title)
+                log.info("🚫 Skipping %s: no parsable added date", title)
                 continue
 
             if added >= expiry_cutoff:
@@ -129,10 +129,10 @@ def swab_once(radarr: Radarr, settings: Settings) -> None:
         )
 
     if skipped:
-        log.warning("⚠️ %d movie(s) skipped due to unparsable dates", skipped)
+        log.info("⚠️ %d movie(s) skipped due to unparsable dates", skipped)
 
     if failed:
-        log.warning("⚠️ %d movie(s) failed to delete", failed)
+        log.info("⚠️ %d movie(s) failed to delete", failed)
 
     if not (downloaded or missing or failed or skipped):
         log.info("🤷 No movies matched the swab policy")

@@ -46,9 +46,9 @@ class SwabClient(discord.Client):
         try:
             await self.swab_guild()
         except discord.DiscordException as exc:
-            log.error("❌ Swab pass failed: %s", exc)
+            log.info("❌ Swab pass failed: %s", exc)
         except Exception:
-            log.exception("❌ Swab pass failed")
+            log.info("❌ Swab pass failed", exc_info=True)
         finally:
             await self.close()
 
@@ -81,13 +81,13 @@ class SwabClient(discord.Client):
                     message.created_at.isoformat(),
                 )
         except discord.HTTPException as exc:
-            log.warning("🚫 Skipping #%s: %s", channel.name, exc)
+            log.info("🚫 Skipping #%s: %s", channel.name, exc)
         finally:
             if unarchived:
                 try:
                     await channel.edit(archived=True)
                 except discord.HTTPException as exc:
-                    log.warning("🚫 Failed to re-archive #%s: %s", channel.name, exc)
+                    log.info("🚫 Failed to re-archive #%s: %s", channel.name, exc)
         return deleted
 
     async def swabbable_channels(self, guild: discord.Guild) -> list:
@@ -107,9 +107,7 @@ class SwabClient(discord.Client):
                     ):
                         candidates.append(thread)
             except discord.HTTPException as exc:
-                log.warning(
-                    "🚫 Skipping archived threads of #%s: %s", channel.name, exc
-                )
+                log.info("🚫 Skipping archived threads of #%s: %s", channel.name, exc)
         channels = []
         for channel in candidates:
             if not isinstance(channel, discord.abc.Messageable):
@@ -122,7 +120,7 @@ class SwabClient(discord.Client):
                 or not permissions.manage_messages
                 or (archived and not permissions.manage_threads)
             ):
-                log.warning("🚫 Skipping #%s: missing permissions", channel.name)
+                log.info("🚫 Skipping #%s: missing permissions", channel.name)
                 continue
             channels.append(channel)
         return channels
@@ -130,7 +128,7 @@ class SwabClient(discord.Client):
     async def swab_guild(self) -> None:
         guild = self.get_guild(self.settings.guild_id)
         if guild is None:
-            log.error(
+            log.info(
                 "❌ Guild %d not found or bot is not a member", self.settings.guild_id
             )
             return
@@ -143,13 +141,11 @@ class SwabClient(discord.Client):
                 total += await self.swab_channel(channel, cutoff)
             except Exception as exc:
                 failures += 1
-                log.warning(
-                    "🚫 Failed to swab #%s: %s", channel.name, format_error(exc)
-                )
+                log.info("🚫 Failed to swab #%s: %s", channel.name, format_error(exc))
         if total:
             log.info("✅ Swabbed %d message(s)", total)
         if failures:
-            log.warning("⚠️ %d channel(s) failed to swab", failures)
+            log.info("⚠️ %d channel(s) failed to swab", failures)
         elif not total:
             log.info("🤷 No messages matched the swab policy")
 
@@ -172,4 +168,4 @@ def swab(settings: Settings, korsairr: common.Settings) -> None:
     try:
         client.run(settings.token, log_handler=None)
     except discord.LoginFailure as exc:
-        log.error("❌ Login failed: %s", exc)
+        log.info("❌ Login failed: %s", exc)

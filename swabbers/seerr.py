@@ -63,13 +63,13 @@ def load_api_key(config_path: str) -> str | None:
         with open(config_path, encoding="utf-8") as handle:
             config = json.load(handle)
     except (OSError, json.JSONDecodeError) as exc:
-        log.error("❌ Failed to read config %s: %s", config_path, exc)
+        log.info("❌ Failed to read config %s: %s", config_path, exc)
         return None
 
     try:
         return config["main"]["apiKey"].strip()
     except (KeyError, TypeError, AttributeError):
-        log.error("❌ No main.apiKey found in %s", config_path)
+        log.info("❌ No main.apiKey found in %s", config_path)
         return None
 
 
@@ -83,7 +83,7 @@ def sorted_ids(results) -> list[int]:
         try:
             ids.append(int(result.id))
         except (TypeError, ValueError):
-            log.warning("🚫 Skipping result %r: no parsable id", result.id)
+            log.info("🚫 Skipping result %r: no parsable id", result.id)
 
     return sorted(ids)
 
@@ -98,7 +98,7 @@ def swab_items(ids: list[int], delete: Callable[[str], None], label: str) -> int
             if is_systemic(exc):
                 raise
 
-            log.warning(
+            log.info(
                 "🚫 Failed to delete %s %d: %s", label, item_id, format_api_error(exc)
             )
             continue
@@ -177,7 +177,7 @@ def swab(settings: Settings, korsairr: common.Settings) -> None:
     api_key = load_api_key(settings.config)
 
     if not api_key:
-        log.error("❌ Unable to determine API key")
+        log.info("❌ Unable to determine API key")
         return
 
     configuration = seerr.Configuration(
@@ -189,8 +189,8 @@ def swab(settings: Settings, korsairr: common.Settings) -> None:
     try:
         swab_once(configuration, settings, korsairr.timeout)
     except ApiException as exc:
-        log.error("❌ Swab pass failed: %s", format_api_error(exc))
+        log.info("❌ Swab pass failed: %s", format_api_error(exc))
     except urllib3.exceptions.HTTPError as exc:
-        log.error("❌ Cannot reach %s: %s", url, base_exception(exc))
+        log.info("❌ Cannot reach %s: %s", url, base_exception(exc))
     except Exception:
-        log.exception("❌ Swab pass failed")
+        log.info("❌ Swab pass failed", exc_info=True)
