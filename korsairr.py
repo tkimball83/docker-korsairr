@@ -66,8 +66,7 @@ def main() -> int:
     while True:
         for _, module, swabber_settings in crew:
             module.swab(swabber_settings, settings)
-
-        sys.stdout.write("\n")
+            sys.stdout.write("\n")
 
         log.info(
             "⏰ Swabbing again in about %s . . .",
