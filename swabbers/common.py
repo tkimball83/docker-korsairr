@@ -26,8 +26,12 @@ class Settings(BaseSettings):
     enable_radarr: bool = False
     enable_seerr: bool = False
     enable_sonarr: bool = False
-    interval: PositiveInt = 3600
+    interval: PositiveInt = 86400
     timeout: PositiveFloat = 30
+
+
+def bold(value) -> str:
+    return f"\033[1m{value}\033[0m"
 
 
 def check_url(value: HttpUrl) -> HttpUrl:

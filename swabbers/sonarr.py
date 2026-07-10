@@ -14,6 +14,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from swabbers import common
 from swabbers.common import (
+    bold,
     check_url,
     format_error,
     is_systemic,
@@ -353,12 +354,14 @@ def banner(settings: Settings) -> None:
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)
 
-    log.info("🚀 Swabbing sonarr")
-    log.info("   config=%s", settings.config)
-    log.info("   grace_days=%dd", settings.grace_days)
-    log.info("   grace_episodes=%d", settings.grace_episodes)
-    log.info("   retention=%dd", settings.retention_days)
-    log.info("   url=%s", str(settings.url).rstrip("/"))
+    log.info(
+        "🚀 config=%s grace_days=%s grace_episodes=%s retention=%s url=%s",
+        bold(settings.config),
+        bold(f"{settings.grace_days}d"),
+        bold(settings.grace_episodes),
+        bold(f"{settings.retention_days}d"),
+        bold(str(settings.url).rstrip("/")),
+    )
 
 
 def swab(settings: Settings, korsairr: common.Settings) -> None:

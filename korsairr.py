@@ -20,7 +20,7 @@ SWABBERS = (
 def main() -> int:
     logging.basicConfig(
         level=logging.INFO,
-        format="[%(name)s] %(message)s",
+        format="[\033[1m%(name)s\033[0m] %(message)s",
         stream=sys.stdout,
     )
 
@@ -49,20 +49,28 @@ def main() -> int:
         return 1
 
     if crew:
-        log.info("🏴‍☠️ Swabbing %s", ", ".join(name for name, _, _ in crew))
+        log.info(
+            "🏴‍☠️ Swabbing %s (interval=%s timeout=%s)",
+            ", ".join(name for name, _, _ in crew),
+            common.bold(common.format_duration(settings.interval)),
+            common.bold(f"{settings.timeout:g}s"),
+        )
     else:
-        log.info("🏴‍☠️ No swabbers enabled")
-    log.info("   interval=%s", common.format_duration(settings.interval))
-    log.info("   timeout=%gs", settings.timeout)
+        log.info(
+            "🏴‍☠️ No swabbers enabled (interval=%s timeout=%s)",
+            common.bold(common.format_duration(settings.interval)),
+            common.bold(f"{settings.timeout:g}s"),
+        )
     sys.stdout.write("\n")
 
     for _, module, swabber_settings in crew:
         module.banner(swabber_settings)
-        sys.stdout.write("\n")
 
     if not crew:
         while True:
             time.sleep(settings.interval)
+
+    sys.stdout.write("\n")
 
     while True:
         for _, module, swabber_settings in crew:
@@ -75,7 +83,7 @@ def main() -> int:
 
         log.info(
             "⏰ Swabbing again in about %s . . .",
-            common.format_duration(settings.interval),
+            common.bold(common.format_duration(settings.interval)),
         )
         time.sleep(settings.interval)
 
