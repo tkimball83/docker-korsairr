@@ -9,10 +9,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+RUN useradd --create-home --shell /usr/sbin/nologin korsairr
+
 COPY korsairr.py .
 COPY swabbers/ swabbers/
 
-RUN useradd --create-home --shell /usr/sbin/nologin korsairr
 USER korsairr
 
 ENV KORSAIRR_DISCORD_DELETE_PINNED=false \

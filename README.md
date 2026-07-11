@@ -16,8 +16,8 @@ Continuously swab the stack
 | `KORSAIRR_ENABLE_RADARR`     | `false` | Enable the radarr swabber           |
 | `KORSAIRR_ENABLE_SEERR`      | `false` | Enable the seerr swabber            |
 | `KORSAIRR_ENABLE_SONARR`     | `false` | Enable the sonarr swabber           |
-| `KORSAIRR_INTERVAL`          | `86400` | Interval between swab passes        |
-| `KORSAIRR_TIMEOUT`           | `30`    | Per-request http timeout            |
+| `KORSAIRR_INTERVAL`          | `86400` | Seconds between swab passes         |
+| `KORSAIRR_TIMEOUT`           | `30`    | Per-request http timeout in seconds |
 
 ### Discord
 

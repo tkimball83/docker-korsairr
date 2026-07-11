@@ -31,6 +31,15 @@ class Settings(BaseSettings):
     validate_url = field_validator("url")(check_url)
 
 
+def get_movies(radarr: Radarr) -> list[dict]:
+    movies = radarr.movie.get()
+
+    if not isinstance(movies, list):
+        raise ValueError("Expected a list response from the 'movie' endpoint")
+
+    return movies
+
+
 def try_delete_movie(
     radarr: Radarr,
     movie_id: int,
@@ -57,7 +66,7 @@ def swab_once(radarr: Radarr, settings: Settings) -> None:
     retention_cutoff = now - timedelta(days=settings.retention_days)
     expiry_cutoff = now - timedelta(days=settings.expiry_days)
 
-    movies = radarr.movie.get()
+    movies = get_movies(radarr)
     downloaded = 0
     missing = 0
     failed = 0

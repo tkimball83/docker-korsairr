@@ -1,7 +1,7 @@
 import logging
 import xml.etree.ElementTree as ElementTree
+from collections.abc import Callable
 from datetime import datetime, timezone
-from typing import Callable
 
 from pyarr.exceptions import (
     PyarrConnectionError,
@@ -44,16 +44,11 @@ def check_url(value: HttpUrl) -> HttpUrl:
 
 
 def format_duration(seconds: int) -> str:
-    hours, rest = divmod(seconds, 3600)
+    days, rest = divmod(seconds, 86400)
+    hours, rest = divmod(rest, 3600)
     minutes, secs = divmod(rest, 60)
 
-    if hours:
-        return f"{hours}h{minutes}m{secs}s"
-
-    if minutes:
-        return f"{minutes}m{secs}s"
-
-    return f"{secs}s"
+    return f"{days}d{hours}h{minutes}m{secs}s"
 
 
 def format_error(exc: BaseException) -> str:
@@ -131,7 +126,6 @@ def swab_pyarr(
     api_key = load_xml_api_key(log, settings.config)
 
     if not api_key:
-        log.info("❌ Unable to determine API key")
         return
 
     try:

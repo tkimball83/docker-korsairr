@@ -2,9 +2,9 @@ import logging
 import os
 import shutil
 import tempfile
+from collections.abc import Iterator
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Iterator
 
 from pydantic import Field, PositiveInt, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
