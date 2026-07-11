@@ -59,10 +59,15 @@ def load_api_key(config_path: str) -> str | None:
         return None
 
     try:
-        return config["main"]["apiKey"].strip()
+        api_key = config["main"]["apiKey"].strip()
     except (KeyError, TypeError, AttributeError):
+        api_key = ""
+
+    if not api_key:
         log.info("❌ No main.apiKey found in %s", config_path)
         return None
+
+    return api_key
 
 
 def sorted_ids(results) -> list[int]:
@@ -101,29 +106,22 @@ def swab_items(ids: list[int], delete: Callable[[str], None], label: str) -> int
     return deleted
 
 
-def swab_requests(request_api: seerr.RequestApi, timeout: float) -> int:
+def swab_paginated(
+    fetch: Callable[[int], object], delete: Callable[[str], None], label: str
+) -> int:
     deleted = 0
     previous = None
     skip = 0
 
     for _ in range(1000):
-        response = request_api.get_request(
-            take=1024, skip=skip, filter="all", _request_timeout=timeout
-        )
-        results = response.results or []
+        results = fetch(skip).results or []
         ids = sorted_ids(results)
 
         if ids == previous:
             break
 
         previous = ids
-        page = swab_items(
-            ids,
-            lambda item_id: request_api.delete_request(
-                request_id=item_id, _request_timeout=timeout
-            ),
-            "request",
-        )
+        page = swab_items(ids, delete, label)
         deleted += page
         skip += len(results) - page
 
@@ -131,38 +129,30 @@ def swab_requests(request_api: seerr.RequestApi, timeout: float) -> int:
             break
 
     return deleted
+
+
+def swab_requests(request_api: seerr.RequestApi, timeout: float) -> int:
+    return swab_paginated(
+        lambda skip: request_api.get_request(
+            take=1024, skip=skip, filter="all", _request_timeout=timeout
+        ),
+        lambda item_id: request_api.delete_request(
+            request_id=item_id, _request_timeout=timeout
+        ),
+        "request",
+    )
 
 
 def swab_media(media_api: seerr.MediaApi, timeout: float) -> int:
-    deleted = 0
-    previous = None
-    skip = 0
-
-    for _ in range(1000):
-        response = media_api.get_media(
+    return swab_paginated(
+        lambda skip: media_api.get_media(
             take=1024, skip=skip, filter="all", _request_timeout=timeout
-        )
-        results = response.results or []
-        ids = sorted_ids(results)
-
-        if ids == previous:
-            break
-
-        previous = ids
-        page = swab_items(
-            ids,
-            lambda item_id: media_api.delete_media(
-                media_id=item_id, _request_timeout=timeout
-            ),
-            "media",
-        )
-        deleted += page
-        skip += len(results) - page
-
-        if len(results) < 1024:
-            break
-
-    return deleted
+        ),
+        lambda item_id: media_api.delete_media(
+            media_id=item_id, _request_timeout=timeout
+        ),
+        "media",
+    )
 
 
 def library_scan(settings_api: seerr.SettingsApi, timeout: float) -> None:
@@ -210,7 +200,6 @@ def swab(settings: Settings, korsairr: common.Settings) -> None:
     api_key = load_api_key(settings.config)
 
     if not api_key:
-        log.info("❌ Unable to determine API key")
         return
 
     configuration = seerr.Configuration(
