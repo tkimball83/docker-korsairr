@@ -42,17 +42,17 @@ def is_real_dir(path: Path) -> bool:
     return path.is_dir() and not path.is_symlink()
 
 
+def raise_error(exc: OSError) -> None:
+    raise exc
+
+
 def newest_mtime(path: Path) -> datetime:
     newest = path.lstat().st_mtime
 
     if is_real_dir(path):
-        for dirpath, dirnames, filenames in os.walk(path):
+        for dirpath, dirnames, filenames in os.walk(path, onerror=raise_error):
             for name in dirnames + filenames:
-                try:
-                    mtime = os.lstat(os.path.join(dirpath, name)).st_mtime
-                except OSError:
-                    continue
-
+                mtime = os.lstat(os.path.join(dirpath, name)).st_mtime
                 newest = max(newest, mtime)
 
     return datetime.fromtimestamp(newest, tz=timezone.utc)
