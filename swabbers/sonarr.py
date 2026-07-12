@@ -51,7 +51,7 @@ def in_grace_period(series: dict, settings: Settings) -> bool:
     added = parse_date(series.get("added"))
 
     if added is None:
-        return False
+        return True
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=settings.grace_days)
     return added >= cutoff
@@ -67,12 +67,15 @@ def get_series(sonarr: Sonarr) -> list[dict]:
 
 
 def get_episode_file_entries(
-    sonarr: Sonarr, series: list[dict]
+    sonarr: Sonarr, series: list[dict], settings: Settings
 ) -> list[EpisodeFileEntry]:
     episode_files: list[EpisodeFileEntry] = []
 
     for item in sort_by_title(series):
         statistics = item.get("statistics") or {}
+
+        if in_grace_period(item, settings):
+            continue
 
         if int(statistics.get("episodeFileCount") or 0) == 0:
             continue
@@ -125,7 +128,7 @@ def swab_episode_files(
     failed = 0
     skipped = 0
 
-    episode_files = get_episode_file_entries(sonarr, series)
+    episode_files = get_episode_file_entries(sonarr, series, settings)
 
     for title, episode_file in episode_files:
         episode_file_id = episode_file.get("id")
@@ -177,7 +180,7 @@ def should_unmonitor_season(series: dict, season: dict, settings: Settings) -> b
             and season.get("seasonNumber") == latest_season(series)
         )
         and bool(season.get("monitored"))
-        and int(statistics.get("episodeFileCount") or 0) == 0
+        and statistics.get("episodeFileCount") == 0
         and int(statistics.get("totalEpisodeCount") or 0) >= settings.grace_episodes
         and not statistics.get("nextAiring")
     )
@@ -286,7 +289,7 @@ def delete_ended_empty_series(
         if in_grace_period(item, settings):
             continue
 
-        if int(statistics.get("episodeFileCount") or 0) != 0:
+        if statistics.get("episodeFileCount") != 0:
             continue
 
         if item.get("status") != "ended":
