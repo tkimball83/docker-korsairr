@@ -38,10 +38,14 @@ Deletes old messages from every channel and thread in the guild.
    privileged gateway intents are required.
 2. Invite the bot to the guild via
    `https://discord.com/oauth2/authorize?client_id=<APPLICATION_ID>&scope=bot&permissions=17179943936`
-   (the application id is on the **General Information** page). The permission
-   set grants **View Channels**, **Read Message History**, **Manage Messages**,
-   and **Manage Threads**; channels missing any of the first three are skipped,
-   and **Manage Threads** is needed to swab archived and private threads.
+   using the application id from the **General Information** page. The
+   permission set grants:
+   - **View Channels**
+   - **Read Message History**
+   - **Manage Messages**
+   - **Manage Threads** (swab archived and private threads)
+
+   Channels missing any of the first three are skipped.
 3. In Discord, enable developer mode (**User Settings → Advanced**), right
    click the server name, and **Copy Server ID** to obtain
    `KORSAIRR_DISCORD_GUILD_ID`.
