@@ -169,7 +169,9 @@ def latest_season(series: dict) -> int:
     )
 
 
-def should_unmonitor_season(series: dict, season: dict, settings: Settings) -> bool:
+def should_unmonitor_season(
+    series: dict, season: dict, latest: int, settings: Settings
+) -> bool:
     statistics = season.get("statistics") or {}
 
     return (
@@ -177,7 +179,7 @@ def should_unmonitor_season(series: dict, season: dict, settings: Settings) -> b
         and not (
             series.get("status") == "continuing"
             and bool(season.get("seasonNumber"))
-            and season.get("seasonNumber") == latest_season(series)
+            and season.get("seasonNumber") == latest
         )
         and bool(season.get("monitored"))
         and statistics.get("episodeFileCount") == 0
@@ -241,8 +243,10 @@ def unmonitor_empty_seasons(
         if series_id is None or in_grace_period(item, settings):
             continue
 
+        latest = latest_season(item)
+
         for season in item.get("seasons") or []:
-            if not should_unmonitor_season(item, season, settings):
+            if not should_unmonitor_season(item, season, latest, settings):
                 continue
 
             season_number = season.get("seasonNumber")

@@ -2,6 +2,7 @@ import asyncio
 import logging
 from datetime import datetime, timedelta
 
+import aiohttp
 import discord
 from pydantic import Field, PositiveInt
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -171,3 +172,7 @@ def swab(settings: Settings, korsairr: common.Settings) -> None:
         client.run(settings.token, log_handler=None)
     except discord.LoginFailure as exc:
         log.info("❌ Login failed: %s", exc)
+    except (aiohttp.ClientError, OSError) as exc:
+        log.info("❌ Cannot reach discord: %s", format_error(exc))
+    except discord.DiscordException as exc:
+        log.info("❌ Swab pass failed: %s", format_error(exc))

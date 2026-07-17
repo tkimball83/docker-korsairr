@@ -14,6 +14,8 @@ from swabbers.common import check_url
 
 log = logging.getLogger("seerr")
 
+PAGE_SIZE = 1024
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -115,6 +117,10 @@ def swab_paginated(
 
     for _ in range(1000):
         results = fetch(skip).results or []
+
+        if not results:
+            break
+
         ids = sorted_ids(results)
 
         if ids == previous:
@@ -125,16 +131,13 @@ def swab_paginated(
         deleted += page
         skip += len(results) - page
 
-        if len(results) < 1024:
-            break
-
     return deleted
 
 
 def swab_requests(request_api: seerr.RequestApi, timeout: float) -> int:
     return swab_paginated(
         lambda skip: request_api.get_request(
-            take=1024, skip=skip, filter="all", _request_timeout=timeout
+            take=PAGE_SIZE, skip=skip, filter="all", _request_timeout=timeout
         ),
         lambda item_id: request_api.delete_request(
             request_id=item_id, _request_timeout=timeout
@@ -146,7 +149,7 @@ def swab_requests(request_api: seerr.RequestApi, timeout: float) -> int:
 def swab_media(media_api: seerr.MediaApi, timeout: float) -> int:
     return swab_paginated(
         lambda skip: media_api.get_media(
-            take=1024, skip=skip, filter="all", _request_timeout=timeout
+            take=PAGE_SIZE, skip=skip, filter="all", _request_timeout=timeout
         ),
         lambda item_id: media_api.delete_media(
             media_id=item_id, _request_timeout=timeout
