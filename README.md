@@ -36,10 +36,11 @@ Deletes old messages from every channel and thread in the guild.
    [Discord Developer Portal](https://discord.com/developers/applications) and
    under **Bot** reset the token to obtain `KORSAIRR_DISCORD_TOKEN`. No
    privileged gateway intents are required.
-2. Invite the bot to the guild via
-   `https://discord.com/oauth2/authorize?client_id=<APPLICATION_ID>&scope=bot&permissions=17179943936`
-   using the application id from the **General Information** page. The
-   permission set grants:
+2. Invite the bot to the guild using the application id from the
+   **General Information** page:
+   - `https://discord.com/oauth2/authorize?client_id=<APPLICATION_ID>&scope=bot&permissions=17179943936`
+
+   The permission set grants:
    - **View Channels**
    - **Read Message History**
    - **Manage Messages**
