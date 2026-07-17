@@ -47,9 +47,9 @@ Deletes old messages from every channel and thread in the guild.
    - **Manage Threads** (swab archived and private threads)
 
    Channels missing any of the first three are skipped.
-3. In Discord, enable developer mode (**User Settings → Advanced**), right
-   click the server name, and **Copy Server ID** to obtain
-   `KORSAIRR_DISCORD_GUILD_ID`.
+3. In Discord, obtain `KORSAIRR_DISCORD_GUILD_ID`:
+   - Enable developer mode (**User Settings → Advanced**)
+   - Right click the server name and **Copy Server ID**
 
 ### Filesystem
 
