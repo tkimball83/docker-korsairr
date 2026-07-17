@@ -30,6 +30,22 @@ Deletes old messages from every channel and thread in the guild.
 | `KORSAIRR_DISCORD_RETENTION_DAYS` | `7`     | Swab messages after this age          |
 | `KORSAIRR_DISCORD_TOKEN`          | `null`  | Bot token (required when enabled)     |
 
+#### Bot setup
+
+1. Create an application in the
+   [Discord Developer Portal](https://discord.com/developers/applications) and
+   under **Bot** reset the token to obtain `KORSAIRR_DISCORD_TOKEN`. No
+   privileged gateway intents are required.
+2. Invite the bot to the guild via
+   `https://discord.com/oauth2/authorize?client_id=<APPLICATION_ID>&scope=bot&permissions=17179943936`
+   (the application id is on the **General Information** page). The permission
+   set grants **View Channels**, **Read Message History**, **Manage Messages**,
+   and **Manage Threads**; channels missing any of the first three are skipped,
+   and **Manage Threads** is needed to swab archived and private threads.
+3. In Discord, enable developer mode (**User Settings → Advanced**), right
+   click the server name, and **Copy Server ID** to obtain
+   `KORSAIRR_DISCORD_GUILD_ID`.
+
 ### Filesystem
 
 Deletes each entry under the swab path once everything inside it is old.
