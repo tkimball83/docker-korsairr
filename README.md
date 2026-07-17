@@ -38,7 +38,7 @@ Deletes old messages from every channel and thread in the guild.
    privileged gateway intents are required.
 2. Invite the bot to the guild using the application id from the
    **General Information** page:
-   - `https://discord.com/oauth2/authorize?client_id=<APPLICATION_ID>&scope=bot&permissions=17179943936`
+   - `https://discord.com/oauth2/authorize?client_id={{ application_id }}&scope=bot&permissions=17179943936`
 
    The permission set grants:
    - **View Channels**
